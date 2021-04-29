@@ -157,6 +157,8 @@ Compute (all_zero (bits B1 B0 B1 B0)).
 
 Compute (all_zero (bits B0 B0 B0 B0)).
 
+End TuplePlayground.
+
 Module NatPlayground.
 
 Inductive nat : Type :=
@@ -407,6 +409,14 @@ Proof.
     + reflexivity.
 Qed.
 
+Theorem negb_involutive : forall b : bool,
+  negb (negb b) = b.
+Proof.
+  destruct b.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
 Theorem andb3_exchange :
   forall b c d, andb (andb b c) d = andb (andb b d) c.
 Proof.
@@ -437,3 +447,72 @@ Proof.
     + reflexivity.
     + apply H.
 Qed.
+
+Theorem zero_nbeq_plus_1 : forall n : nat,
+  0 =? (n + 1) = false.
+Proof.
+  intros n.
+  destruct n.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem identity_fn_applied_twice : 
+  forall (f : bool -> bool),
+  (forall x : bool, f x = x) ->
+  forall b : bool, f (f b) = b.
+Proof.
+  intros.
+  rewrite -> H.
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+Theorem negation_fn_applied_twice :
+  forall (f : bool -> bool),
+  (forall x : bool, f x = negb x) ->
+  forall b : bool, f (f b) = b.
+Proof.
+  intros.
+  rewrite -> H.
+  rewrite -> H.
+  apply negb_involutive.
+Qed.
+
+Theorem andb_eq_orb : forall b c : bool,
+  (andb b c = orb b c) ->
+  b = c.
+Proof.
+  intros .
+  destruct b.
+  - simpl in H. rewrite -> H. reflexivity.
+  - simpl in H. apply H.
+Qed.
+
+Inductive bin : Type :=
+  | Z  : bin
+  | B0 : bin -> bin
+  | B1 : bin -> bin.
+
+Fixpoint incr (m : bin) : bin :=
+  match m with
+  | Z     => B1 Z
+  | B0 m' => B1 m'
+  | B1 m' => B0 (incr m')
+  end.
+
+Example test_bin_inrc1: (incr (B1 Z)) = B0 (B1 Z).
+Proof. reflexivity. Qed.
+
+Example test_bin_incr2 : (incr (B0 (B1 Z))) = B1 (B1 Z).
+Proof. reflexivity. Qed.
+
+Example test_bin_incr3 : (incr (B1 (B1 Z))) = B0 (B0 (B1 Z)).
+Proof. reflexivity. Qed.
+
+Fixpoint bin_to_nat (m : bin) : nat :=
+  match m with
+  | Z     => 0
+  | B0 m' => 2 * bin_to_nat m'
+  | B1 m' => 1 + 2 * bin_to_nat m'
+  end.
