@@ -384,3 +384,56 @@ Proof.
   rewrite <- mult_n_O.
   reflexivity.
 Qed.
+
+(* Proof by case analysis *)
+Theorem plus_1_neq_0 : forall n : nat,
+  (n + 1) =? 0 = false.
+Proof.
+  destruct n.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem andb_commutative : forall b1 b2 : bool,
+  andb b1 b2 = andb b2 b1.
+Proof.
+  intros b1 b2.
+  destruct b1.
+  - destruct b2.
+    + reflexivity.
+    + reflexivity.
+  - destruct b2.
+    + reflexivity.
+    + reflexivity.
+Qed.
+
+Theorem andb3_exchange :
+  forall b c d, andb (andb b c) d = andb (andb b d) c.
+Proof.
+  intros b c d. destruct b eqn:Eb.
+  - destruct c eqn:Ec.
+    { destruct d eqn:Ed.
+      - reflexivity.
+      - reflexivity. }
+    { destruct d eqn:Ed.
+      - reflexivity.
+      - reflexivity. }
+  - destruct c eqn:Ec.
+    { destruct d eqn:Ed.
+      - reflexivity.
+      - reflexivity. }
+    { destruct d eqn:Ed.
+      - reflexivity.
+      - reflexivity. }
+Qed.
+
+Theorem andb_true_elim2 : forall n m : bool,
+  andb n m = true -> m = true.
+Proof.
+  intros.
+  destruct n.
+  - simpl in H. apply H.
+  - simpl in H. destruct m.
+    + reflexivity.
+    + apply H.
+Qed.
