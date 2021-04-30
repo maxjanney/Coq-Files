@@ -67,5 +67,27 @@ Proof.
   - simpl. rewrite -> IHn. rewrite <- plus_n_Sm. reflexivity.
 Qed.
 
+Theorem evenb_S : forall n : nat,
+  evenb (S n) = negb (evenb n).
+Proof.
+  induction n.
+  - reflexivity.
+  - rewrite -> IHn. simpl. rewrite -> negb_involutive. reflexivity.
+Qed.
 
+Theorem mult_0_plus' : forall n m : nat,
+  (0 + n) * m = n * m.
+Proof.
+  intros.
+  reflexivity.
+Qed.
+
+Theorem plus_rearrange : forall n m p q : nat,
+  (n + m) + (p + q) = (m + n) + (p + q).
+Proof.
+  intros.
+  assert (H: n + m = m + n).
+  { rewrite -> plus_comm. reflexivity. }
+  rewrite -> H. reflexivity.
+Qed.
 
