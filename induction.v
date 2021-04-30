@@ -91,3 +91,28 @@ Proof.
   rewrite -> H. reflexivity.
 Qed.
 
+Theorem plus_swap : forall n m p : nat,
+  n + (m + p) = m + (n + p).
+Proof.
+  intros n m p.
+  rewrite -> plus_comm.
+  rewrite <- plus_assoc.
+  assert (H: p + n = n + p).
+  { rewrite -> plus_comm. reflexivity. }
+  rewrite -> H. reflexivity.
+Qed.
+
+Theorem mult_comm : forall m n : nat,
+  m * n = n * m.
+Proof.
+  intros m n.
+  induction m.
+  - rewrite <- mult_n_O. reflexivity.
+  - rewrite <- mult_n_Sm.
+    simpl. rewrite -> IHm. 
+    rewrite -> plus_comm. reflexivity.
+Qed.
+
+
+
+
