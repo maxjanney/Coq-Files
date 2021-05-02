@@ -291,7 +291,7 @@ Proof.
     rewrite -> double_inc. reflexivity.
 Qed.
 
-Theorem idk : forall b : bin,
+Theorem bin_nat_bin : forall b : bin,
   nat_to_bin (bin_to_nat b) = normalize b.
 Proof.
   induction b.
