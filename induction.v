@@ -95,10 +95,9 @@ Theorem plus_swap : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
   intros n m p.
-  rewrite -> plus_comm.
-  rewrite <- plus_assoc.
-  assert (H: p + n = n + p).
-  { rewrite -> plus_comm. reflexivity. }
+  rewrite -> plus_assoc. rewrite -> plus_assoc.
+  assert (H: n + m = m + n).
+  { apply plus_comm. }
   rewrite -> H. reflexivity.
 Qed.
 
@@ -204,4 +203,44 @@ Proof.
   - simpl. rewrite -> IHn. 
     rewrite -> mult_plus_distr_r.
     reflexivity.
+Qed.
+
+Theorem eqb_refl : forall n : nat,
+  true = (n =? n).
+Proof.
+  intros n.
+  induction n.
+  - reflexivity.
+  - apply IHn.
+Qed.
+
+Theorem plus_swap' : forall n m p : nat,
+  n + (m + p) = m + (n + p).
+Proof.
+  intros.
+  rewrite -> plus_assoc. rewrite -> plus_assoc.
+  replace (n + m) with (m + n). reflexivity.
+  apply plus_comm.
+Qed.
+
+Theorem succ_succ : forall n : nat,
+  S n + S n = S (S (n + n)).
+Proof.
+  induction n.
+  - reflexivity.
+  - rewrite -> IHn.
+    simpl. rewrite <- plus_n_Sm. 
+    rewrite <- plus_n_Sm. reflexivity.
+Qed.
+
+Theorem bin_to_nat_pres_incr : forall b : bin,
+  bin_to_nat (incr b) =  S (bin_to_nat b).
+Proof.
+  intros.
+  induction b.
+  - reflexivity.
+  - reflexivity.
+  - simpl. rewrite -> IHb.
+    rewrite <- plus_n_O. rewrite <- plus_n_O.
+    rewrite -> succ_succ. reflexivity.
 Qed.
