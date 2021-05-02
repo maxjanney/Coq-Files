@@ -244,3 +244,62 @@ Proof.
     rewrite <- plus_n_O. rewrite <- plus_n_O.
     rewrite -> succ_succ. reflexivity.
 Qed.
+
+Fixpoint nat_to_bin (n : nat) : bin :=
+  match n with
+  | O    => Z
+  | S n' => incr (nat_to_bin n')
+  end.
+
+Theorem nat_bin_nat : forall n : nat,
+  bin_to_nat (nat_to_bin n) = n.
+Proof.
+  induction n.
+  - reflexivity.
+  - simpl. rewrite -> bin_to_nat_pres_incr.
+    rewrite -> IHn. reflexivity.
+Qed.
+
+Definition double_bin (b : bin) : bin :=
+  match b with
+  | Z => Z
+  | _ => B0 b
+  end.
+
+Fixpoint normalize (b : bin) : bin :=
+  match b with
+  | Z => Z
+  | B0 b' => double_bin (normalize b')
+  | B1 b' => incr (double_bin (normalize b'))
+  end.
+
+Lemma double_inc : forall b : bin,
+  incr (incr (double_bin b)) = double_bin (incr b).
+Proof.
+  destruct b.
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Lemma nat_to_bin_double : forall n : nat,
+  nat_to_bin (double n) = double_bin (nat_to_bin n).
+Proof.
+  induction n.
+  - reflexivity.
+  - simpl. rewrite -> IHn.
+    rewrite -> double_inc. reflexivity.
+Qed.
+
+Theorem idk : forall b : bin,
+  nat_to_bin (bin_to_nat b) = normalize b.
+Proof.
+  induction b.
+  - reflexivity.
+  - simpl. rewrite <- plus_n_O.
+    rewrite <- double_plus. rewrite -> nat_to_bin_double.
+    rewrite -> IHb. reflexivity.
+  - simpl. rewrite <- plus_n_O.
+    rewrite <- double_plus. rewrite -> nat_to_bin_double.
+    rewrite -> IHb. reflexivity.
+Qed.
