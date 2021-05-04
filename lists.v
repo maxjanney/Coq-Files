@@ -409,7 +409,7 @@ Proof.
 Qed.
 
 Lemma nonzeros_app : forall l1 l2 : natlist,
-  nonzeros (l1 ++ l2) = (nonzeros l1) ++ nonzeros (l2).
+  nonzeros (l1 ++ l2) = (nonzeros l1) ++ (nonzeros l2).
 Proof.
   intros l1 l2. induction l1.
   - reflexivity.
@@ -417,6 +417,80 @@ Proof.
     destruct n.
       + reflexivity.
       + reflexivity.
+Qed.
+
+Fixpoint eqblist (l1 l2 : natlist) : bool :=
+  match l1, l2 with
+  | [], [] => true
+  | _ :: _, [] => false
+  | [], _ :: _ => false
+  | h1 :: t1, h2 :: t2 =>
+    if (h1 =? h2)
+      then eqblist t1 t2
+      else false
+  end.
+
+Example test_eqblist1:
+  eqblist [] [] = true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_eqblist2:
+  eqblist [1;2;3] [1;2;3] = true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_eqblist3:
+  eqblist [1;2;3] [1;2;4] = false.
+Proof. simpl. reflexivity. Qed.
+
+Theorem eqblist_refl : forall l : natlist,
+  eqblist l l = true.
+Proof.
+  induction l.
+  - reflexivity.
+  - simpl. rewrite -> eq_reflexive.
+    apply IHl.
+Qed.
+
+Theorem count_member_nonzero : forall s : bag,
+  1 <=? (count 1 (1 :: s)) = true.
+Proof.
+  intros s. reflexivity.
+Qed.
+
+Lemma leb_n_Sn : forall n : nat,
+  n <=? (S n) = true.
+Proof.
+  induction n.
+  - reflexivity.
+  - simpl. apply IHn.
+Qed.
+
+Theorem remove_does_not_increase_count : forall s : bag,
+  (count 0 (remove_one 0 s)) <=? (count 0 s) = true.
+Proof.
+  induction s.
+  - reflexivity.
+  - destruct n.
+    + simpl. rewrite -> leb_n_Sn. reflexivity.
+    + simpl. apply IHs.
+Qed.
+
+Theorem bag_count_theorem : forall l1 l2 : bag,
+  length (sum l1 l2) = length l1 + length l2.
+Proof.
+  intros l1 l2.
+  induction l1.
+  - reflexivity.
+  - simpl. rewrite -> IHl1.
+    reflexivity.
+Qed.
+
+Theorem rev_injective : forall l1 l2 : natlist,
+  rev l1 = rev l2 -> l1 = l2.
+Proof.
+  intros l1 l2 H.
+  rewrite <- rev_involutive. rewrite <- H.
+  rewrite -> rev_involutive. reflexivity.
 Qed.
 
 End NatList.
