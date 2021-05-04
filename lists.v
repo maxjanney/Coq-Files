@@ -4,8 +4,6 @@ Module NatList.
 Inductive natprod : Type :=
   | pair (n1 n2 : nat).
 
-Check (pair 3 5).
-
 Definition fst (p : natprod) : nat :=
   match p with
   | pair x _ => x
@@ -16,11 +14,7 @@ Definition snd (p : natprod) : nat :=
   | pair _ y => y
   end.
 
-Compute (fst (pair 3 5)).
-
 Notation "( x , y )" := (pair x y).
-
-Compute (fst (3,5)).
 
 Definition fst' (p : natprod) :=
   match p with
@@ -66,17 +60,11 @@ Inductive natlist : Type :=
   | nil
   | cons (n : nat) (l : natlist).
 
-Definition mylist := cons 1 (cons 2 (cons 3 nil)).
-
 Notation "x :: l" := (cons x l)
                      (at level 60, right associativity).
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) ..).
-
-Definition mylist1 := 1 :: (2 :: (3 :: nil)).
-Definition mylist2 := 1 :: 2 :: 3 :: nil.
-Definition mylist3 := [1;2;3].
 
 Fixpoint repeat (n count : nat) : natlist :=
   match count with
@@ -111,25 +99,12 @@ Definition tl (l : natlist) : natlist :=
   | _ :: t => t
   end.
 
-Example test_hd1: hd 0 [1;2;3] = 1.
-Proof. reflexivity. Qed.
-
-Example test_hd2: hd 0 [] = 0.
-Proof. reflexivity. Qed.
-
-Example test_tl: tl [1;2;3] = [2;3].
-Proof. reflexivity. Qed.
-
 Fixpoint nonzeros (l : natlist) : natlist :=
   match l with
   | [] => []
   | O :: t => nonzeros t
   | h :: t => h :: nonzeros t
   end.
-
-Example test_nonzeros: 
-  nonzeros [0;1;0;2;3;0;0] = [1;2;3].
-Proof. reflexivity. Qed.
 
 Fixpoint oddmembers (l : natlist) : natlist :=
   match l with
@@ -139,10 +114,6 @@ Fixpoint oddmembers (l : natlist) : natlist :=
       then h :: oddmembers t
       else oddmembers t
   end.
-
-Example test_oddmembers:
-  oddmembers [0;1;0;2;3;0;0] = [1;3].
-Proof. reflexivity. Qed.
 
 Definition countoddmembers (xs : natlist) : nat :=
   length (oddmembers xs).
@@ -156,40 +127,12 @@ Fixpoint countoddmembers' (l : natlist) : nat :=
       else countoddmembers' t
   end.
 
-Example test_countoddmembers1:
-  countoddmembers' [1;0;3;1;4;5] = 4.
-Proof. reflexivity. Qed.
-
-Example test_countoddmembers2:
-  countoddmembers [0;2;4] = 0.
-Proof. reflexivity. Qed.
-
-Example test_countoddmembers3:
-  countoddmembers nil = 0.
-Proof. reflexivity. Qed.
-
 Fixpoint alternate (l1 l2 : natlist) : natlist :=
   match l1, l2 with
   | [], _ => l2
   | _, [] => l1
   | h1 :: t1, h2 :: t2 => h1 :: h2 :: alternate t1 t2
   end.
-
-Example test_alternate1:
-  alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
-Proof. reflexivity. Qed.
-
-Example test_alternate2:
-  alternate [1] [4;5;6] = [1;4;5;6].
-Proof. reflexivity. Qed.
-
-Example test_alternate3:
-  alternate [1;2;3] [4] = [1;4;2;3].
-Proof. reflexivity. Qed.
-
-Example test_alternate4:
-  alternate [] [20;30] = [20;30].
-Proof. reflexivity. Qed.
 
 Definition bag := natlist.
 
@@ -202,26 +145,11 @@ Fixpoint count (v : nat) (s : bag) : nat :=
       else count v t
   end.
 
-Example test_count1: count 1 [1;2;3;1;4;1] = 3.
-Proof. simpl. reflexivity. Qed.
-
-Example test_count2: count 6 [1;2;3;1;4;1] = 0.
-Proof. simpl. reflexivity. Qed.
-
 Definition sum : bag -> bag -> bag :=
   app.
 
-Example test_sum1: count 1 (sum [1;2;3] [1;4;1]) = 3.
-Proof. simpl. reflexivity. Qed.
-
 Definition add (v : nat) (s : bag) : bag :=
   v :: s.
-
-Example test_add1: count 1 (add 1 [1;4;1]) = 3.
-Proof. simpl. reflexivity. Qed.
-
-Example test_add2: count 5 (add 1 [1;4;1]) = 0.
-Proof. simpl. reflexivity. Qed.
 
 Definition member (v : nat) (s : bag) : bool :=
   negb (count v s =? O).
@@ -235,12 +163,6 @@ Fixpoint member' (v : nat) (s : bag) : bool :=
       else member' v t
   end.
 
-Example test_member1: member 1 [1;4;1] = true.
-Proof. reflexivity. Qed.
-
-Example test_member2: member 2 [1;4;1] = false.
-Proof. reflexivity. Qed.
-
 Fixpoint remove_one (v : nat) (s : bag) : bag :=
   match s with
   | [] => s
@@ -249,22 +171,6 @@ Fixpoint remove_one (v : nat) (s : bag) : bag :=
         then t
         else h :: remove_one v t
   end.
-
-Example test_remove_one1:
-  count 5 (remove_one 5 [2;1;5;4;1]) = 0.
-Proof. simpl. reflexivity. Qed.
-
-Example test_remove_one2:
-  count 5 (remove_one 5 [2;1;4;1]) = 0.
-Proof. simpl. reflexivity. Qed.
-
-Example test_remove_one3:
-  count 4 (remove_one 5 [2;1;4;5;1;4]) = 2.
-Proof. simpl. reflexivity. Qed.
-
-Example test_remove_one4:
-  count 5 (remove_one 5 [2;1;5;4;5;1;4]) = 1. 
-Proof. simpl. reflexivity. Qed.
 
 Fixpoint remove_all (v : nat) (s : bag) : bag :=
   match s with
@@ -275,18 +181,6 @@ Fixpoint remove_all (v : nat) (s : bag) : bag :=
       else h :: remove_all v t
   end.
 
-Example test_remove_all1: count 5 (remove_all 5 [2;1;5;4;1]) = 0.
-Proof. simpl. reflexivity. Qed.
-
-Example test_remove_all2: count 5 (remove_all 5 [2;1;4;1]) = 0.
-Proof. simpl. reflexivity. Qed.
-
-Example test_remove_all3: count 4 (remove_all 5 [2;1;4;5;1;4]) = 2.
-Proof. simpl. reflexivity. Qed.
-
-Example test_remove_all4: count 5 (remove_all 5 [2;1;5;4;5;1;4;5;1;4]) = 0.
-Proof. simpl. reflexivity. Qed.
-
 Fixpoint subset (s1 s2 : bag) : bool :=
   match s1 with
   | [] => true
@@ -295,12 +189,6 @@ Fixpoint subset (s1 s2 : bag) : bool :=
       then subset t (remove_one h s2)
       else false
   end.
-
-Example test_subset1: subset [1;2] [2;1;4;1] = true.
-Proof. simpl. reflexivity. Qed.
-
-Example test_subset2: subset [1;2;2] [2;1;4;1] = false.
-Proof. simpl. reflexivity. Qed.
 
 Lemma eq_reflexive : forall n : nat,
   (n =? n) = true.
@@ -344,12 +232,6 @@ Fixpoint rev (l : natlist) : natlist :=
   | [] => []
   | h :: t => rev t ++ [h]
   end.
-
-Example test_rev1: rev [1;2;3] = [3;2;1].
-Proof. reflexivity. Qed.
-
-Example test_rev2: rev nil = nil.
-Proof. reflexivity. Qed.
 
 Lemma app_length : forall l1 l2 : natlist,
   length (l1 ++ l2) = length l1 + length l2.
@@ -430,18 +312,6 @@ Fixpoint eqblist (l1 l2 : natlist) : bool :=
       else false
   end.
 
-Example test_eqblist1:
-  eqblist [] [] = true.
-Proof. simpl. reflexivity. Qed.
-
-Example test_eqblist2:
-  eqblist [1;2;3] [1;2;3] = true.
-Proof. simpl. reflexivity. Qed.
-
-Example test_eqblist3:
-  eqblist [1;2;3] [1;2;4] = false.
-Proof. simpl. reflexivity. Qed.
-
 Theorem eqblist_refl : forall l : natlist,
   eqblist l l = true.
 Proof.
@@ -493,4 +363,91 @@ Proof.
   rewrite -> rev_involutive. reflexivity.
 Qed.
 
+Inductive natoption : Type :=
+  | Some (n : nat)
+  | None.
+
+Fixpoint nth_error (l : natlist) (n : nat) : natoption :=
+  match l with
+  | [] => None
+  | h :: t => 
+    if n =? 0
+      then Some h
+      else nth_error t (pred n)
+  end.
+
+Definition option_elim (d : nat) (o : natoption) : nat :=
+  match o with
+  | Some n => n
+  | None => d
+  end.
+
+Definition hd_error (l : natlist) : natoption :=
+  match l with
+  | [] => None
+  | h :: _ => Some h
+  end.
+
+Theorem option_elim_hd : forall (l : natlist) (default : nat),
+  hd default l = option_elim default (hd_error l).
+Proof.
+  intros.
+  destruct l.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
 End NatList.
+
+Inductive id : Type :=
+  | Id (n : nat).
+
+Definition eqb_id (x1 x2 : id) : bool :=
+  match x1, x2 with
+  | Id n1, Id n2 => n1 =? n2
+  end.
+
+Theorem eqb_id_refl : forall x, 
+  true = eqb_id x x.
+Proof.
+  destruct x.
+  - simpl. rewrite -> NatList.eq_reflexive. 
+    reflexivity.
+Qed.
+
+Module PartialMap.
+Export NatList.
+
+Inductive partial_map : Type :=
+  | empty
+  | record (i : id) (v : nat) (m : partial_map).
+
+Definition update (d : partial_map) (x : id) (value : nat) : partial_map :=
+  record x value d.
+
+Fixpoint find (x : id) (d : partial_map) : natoption :=
+  match d with
+  | empty => None
+  | record i v m => 
+    if (eqb_id x i)
+      then Some v
+      else find x m
+  end.
+
+Theorem update_eq : forall (d : partial_map) (x : id) (v : nat),
+  find x (update d x v) = Some v.
+Proof.
+  intros.
+  simpl. rewrite <- eqb_id_refl. 
+  reflexivity.
+Qed.
+
+Theorem update_neq : forall (d : partial_map) (x y : id) (o : nat),
+  eqb_id x y = false -> find x (update d y o) = find x d.
+Proof.
+  intros. 
+  simpl. rewrite -> H. 
+  reflexivity.
+Qed.
+
+End PartialMap.
