@@ -205,8 +205,9 @@ Fixpoint count (v : nat) (s : bag) : nat :=
   match s with
   | [] => O
   | h :: t => 
-    if (v =? h) then S (count v t) 
-                else count v t
+    if (v =? h) 
+      then S (count v t) 
+      else count v t
   end.
 
 Example test_count1: count 1 [1;2;3;1;4;1] = 3.
@@ -247,5 +248,90 @@ Proof. reflexivity. Qed.
 
 Example test_member2: member 2 [1;4;1] = false.
 Proof. reflexivity. Qed.
+
+Fixpoint remove_one (v : nat) (s : bag) : bag :=
+  match s with
+  | [] => s
+  | h :: t => 
+      if (h =? v)
+        then t
+        else h :: remove_one v t
+  end.
+
+Example test_remove_one1:
+  count 5 (remove_one 5 [2;1;5;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_one2:
+  count 5 (remove_one 5 [2;1;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_one3:
+  count 4 (remove_one 5 [2;1;4;5;1;4]) = 2.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_one4:
+  count 5 (remove_one 5 [2;1;5;4;5;1;4]) = 1. 
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint remove_all (v : nat) (s : bag) : bag :=
+  match s with
+  | [] => s
+  | h :: t =>
+    if (h =? v)
+      then remove_all v t
+      else h :: remove_all v t
+  end.
+
+Example test_remove_all1: count 5 (remove_all 5 [2;1;5;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_all2: count 5 (remove_all 5 [2;1;4;1]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_all3: count 4 (remove_all 5 [2;1;4;5;1;4]) = 2.
+Proof. simpl. reflexivity. Qed.
+
+Example test_remove_all4: count 5 (remove_all 5 [2;1;5;4;5;1;4;5;1;4]) = 0.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint subset (s1 s2 : bag) : bool :=
+  match s1 with
+  | [] => true
+  | h :: t => 
+    if (member h s2)
+      then subset t (remove_one h s2)
+      else false
+  end.
+
+Example test_subset1: subset [1;2] [2;1;4;1] = true.
+Proof. simpl. reflexivity. Qed.
+
+Example test_subset2: subset [1;2;2] [2;1;4;1] = false.
+Proof. simpl. reflexivity. Qed.
+
+Theorem so_theorem : forall m : nat, exists n : nat,
+  m * n = n.
+Proof.
+  intros m. exists O.
+  rewrite <- mult_n_O. 
+  reflexivity.
+Qed.
+
+Lemma eq_reflexive : forall n : nat,
+  (n =? n) = true.
+Proof.
+  induction n.
+  - reflexivity.
+  - simpl. apply IHn.
+Qed.
+
+Theorem add_inc_count : forall (s : bag) (n : nat),
+  count n (add n s) = S (count n s).
+Proof.
+  intros. simpl.
+  rewrite -> eq_reflexive. 
+  reflexivity.
+Qed.
 
 End NatList.
