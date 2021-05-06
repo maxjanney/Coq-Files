@@ -190,3 +190,72 @@ Proof.
   - simpl. rewrite <- IHl.
     rewrite -> map_app. reflexivity.
 Qed.
+
+Fixpoint flat_map {X Y : Type} (f : X -> list Y) (l : list X) 
+                  : list Y :=
+  match l with
+  | [] => []
+  | h :: t =>
+    f h ++ flat_map f t
+  end.
+
+Definition option_map {X Y : Type} (f : X -> Y) (xo : option X) 
+                      : option Y :=
+  match xo with
+  | None => None
+  | Some x => Some (f x)
+  end.
+
+Fixpoint fold {X Y : Type} (f : X -> Y -> Y) (l : list X) (b : Y) 
+              : Y :=
+  match l with
+  | [] => b
+  | h :: t => f h (fold f t b)
+  end.
+
+
+Definition fold_len {X : Type} (l : list X) : nat :=
+  fold (fun _ n => S n) l 0.
+
+Theorem fold_len_correct : forall (X : Type) (l : list X),
+  fold_len l = length l.
+Proof.
+  intros. induction l.
+  - reflexivity.
+  - simpl. rewrite <- IHl.
+    reflexivity.
+Qed.
+
+Definition fold_map {X Y : Type} (f : X -> Y) (l : list X) : list Y :=
+  fold (fun x y => f x :: y) l [].
+
+Theorem fold_map_correct : forall (X Y : Type) (f : X -> Y) (l : list X),
+  fold_map f l = map f l.
+Proof.
+  intros. induction l.
+  - reflexivity.
+  - simpl. rewrite <- IHl.
+    reflexivity.
+Qed.
+
+Definition prod_curry {X Y Z : Type}
+  (f : X * Y -> Z) (x : X) (y : Y) : Z := f (x, y).
+
+Definition prod_uncurry {X Y Z : Type}
+  (f : X -> Y -> Z) (p : X * Y) : Z := f (fst p) (snd p).
+
+Theorem uncurry_curry : forall (X Y Z : Type)
+                        (f : X -> Y -> Z)
+                        x y,
+  prod_curry (prod_uncurry f) x y = f x y.
+Proof.
+  intros. reflexivity.
+Qed.
+
+Theorem curry_uncurry : forall (X Y Z : Type)
+                        (f : X*Y -> Z) (p : X*Y),
+  prod_uncurry (prod_curry f) p = f p.
+Proof.
+  intros. destruct p.
+  - reflexivity.
+Qed.
