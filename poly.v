@@ -213,6 +213,7 @@ Fixpoint fold {X Y : Type} (f : X -> Y -> Y) (l : list X) (b : Y)
   | h :: t => f h (fold f t b)
   end.
 
+Module Exercises.
 
 Definition fold_len {X : Type} (l : list X) : nat :=
   fold (fun _ n => S n) l 0.
@@ -259,3 +260,34 @@ Proof.
   intros. destruct p.
   - reflexivity.
 Qed.
+
+Module Church.
+
+Definition cnat := forall X : Type, (X -> X) -> X -> X.
+
+Definition zero : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => x.
+
+Definition one : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => f x.
+
+Definition two : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => f (f x).
+
+Definition three : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => f (f (f x)).
+
+Definition succ (n : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => f (n X f x).
+
+Definition plus (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => m X f (n X f x).
+
+Definition mult (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => m X (n X f) x.
+
+Definition exp (n m : cnat) : cnat :=
+  fun (X : Type) (f : X -> X) (x : X) => (m (X -> X) (n X) f) x.
+
+End Church.
+End Exercises.
