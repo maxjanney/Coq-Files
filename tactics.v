@@ -125,4 +125,126 @@ Proof.
   reflexivity.
 Qed.
 
+Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
+  x :: y :: l = z :: j ->
+  j = z :: l ->
+  x = y.
+Proof.
+  intros X x y z l j H0 H1.
+  injection H0 as H2 H3.
+  rewrite H1 in H3. injection H3 as H4.
+  rewrite H4. apply H2.
+Qed.
+
+Theorem eqb_0_l : forall n : nat,
+  0 =? n = true -> n = 0.
+Proof.
+  destruct n.
+  - reflexivity.
+  - intros H. discriminate.
+Qed.
+
+Theorem discriminate_ex1 : forall n : nat,
+  S n = 0 ->
+  2 + 2 = 5.
+Proof.
+  intros. discriminate.
+Qed.
+
+Theorem discriminate_ex2 : forall n m : nat,
+  false = true ->
+  [n] = [m].
+Proof.
+  intros. discriminate.
+Qed.
+
+Example discriminate_ex3 : 
+  forall (X : Type) (x y z : X) (l j : list X),
+    x :: y :: l = [] ->
+    x = z.
+Proof.
+  intros. discriminate.
+Qed.
+
+Theorem f_equal : forall (A B : Type) (f : A -> B) (x y : A),
+  x = y -> f x = f y.
+Proof.
+  intros. rewrite H. reflexivity.
+Qed.
+
+Theorem eq_implies_succ_equal : forall n m : nat,
+  n = m -> S n = S m.
+Proof.
+  intros n m. apply f_equal.
+Qed.
+
+Theorem eq_implies_succ_equal' : forall n m : nat,
+  n = m -> S n = S m.
+Proof.
+  intros n m H. f_equal. apply H.
+Qed.
+
+Theorem S_inj : forall (n m : nat) (b : bool),
+  (S n) =? (S m) = b ->
+  n =? m = b.
+Proof.
+  intros. simpl in H. apply H.
+Qed.
+
+Theorem silly3' : forall (n : nat),
+  (n =? 5 = true -> (S (S n)) =? 7 = true) ->
+  true = (n =? 5) ->
+  true = ((S (S n)) =? 7).
+Proof.
+  intros h eq H.
+  symmetry in H. apply eq in H.
+  symmetry in H. apply H.
+Qed.
+
+Theorem double_injective : forall n m,
+  double n = double m ->
+  n = m.
+Proof.
+  intros n. induction n as [| n' IHn'].
+  - simpl. intros m eq. destruct m.
+      + reflexivity.
+      + discriminate.
+  - simpl. intros m eq.
+    destruct m.
+      + discriminate.
+      + apply f_equal. apply IHn'. simpl in eq.
+        injection eq as goal. apply goal.
+Qed.
+
+Theorem eqb_true : forall n m,
+  n =? m = true -> n = m.
+Proof.
+  induction n.
+  - intros. destruct m.
+    + reflexivity.
+    + discriminate.
+  - intros. destruct m.
+    + discriminate.
+    + apply f_equal. apply IHn. simpl in H.
+      apply H.
+Qed.
+
+Theorem plus_n_n_injective : forall n m,
+  n + n = m + m ->
+  n = m.
+Proof.
+  induction n.
+  + intros. destruct m.
+    - reflexivity.
+    - discriminate.
+  + simpl. intros. destruct m.
+    - discriminate.
+    - simpl in H. 
+      rewrite <- plus_n_Sm in H.
+      rewrite <- plus_n_Sm in H.
+      injection H as H1. f_equal.
+      apply IHn. apply H1.
+Qed.
+
+
 
