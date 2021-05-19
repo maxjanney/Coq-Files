@@ -246,5 +246,177 @@ Proof.
       apply IHn. apply H1.
 Qed.
 
+Theorem double_injective_take2 : forall n m,
+  double n = double m ->
+  n = m.
+Proof.
+  intros n m. 
+  generalize dependent n.
+  induction m.
+  - simpl. intros n eq. destruct n.
+    + reflexivity.
+    + discriminate.
+  - intros n eq. destruct n.
+    + discriminate.
+    + f_equal. apply IHm.
+      injection eq as H. apply H.
+Qed.
+
+Theorem nth_error_after_last : forall (n : nat) (X : Type) (l : list X),
+  length l = n ->
+  nth_error l n = None.
+Proof.
+  induction n.
+  + intros X l. destruct l.
+    - reflexivity.
+    - discriminate.
+  + intros X l eq. destruct l.
+    - discriminate.
+    - simpl. apply IHn. 
+      injection eq as H. apply H.
+Qed.
+
+Definition square (n : nat) : nat :=
+  n * n.
+
+Lemma square_mult : forall n m,
+  square (n * m) = square n * square m.
+Proof.
+  intros n m. unfold square. 
+  rewrite mult_assoc. rewrite mult_assoc.
+  assert (H: n * m * n = n * n * m).
+    { rewrite mult_comm. apply mult_assoc. }
+  rewrite H. reflexivity.
+Qed.
+
+Definition foo (x : nat) := 5.
+
+Fact silly_fact_1 : forall m,
+  foo m + 1 = foo (m + 1) + 1.
+Proof.
+  intros m. reflexivity.
+Qed.
+
+Definition bar x :=
+  match x with
+  | O => 5
+  | S _ => 5
+  end.
+
+Fact silly_fact_2' : forall m, 
+  bar m + 1 = bar (m + 1) + 1.
+Proof.
+  intros m. unfold bar.
+  destruct m.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Definition sillyfun (n : nat) : bool :=
+  if n=? 3 then false
+  else if n =? 5 then false
+  else false.
+
+Theorem sillyfun_false : forall n : nat,
+  sillyfun n = false.
+Proof.
+  intros n. unfold sillyfun.
+  destruct (n =? 3) eqn:E1.
+  - reflexivity.
+  - destruct (n =? 5) eqn:E2.
+    + reflexivity.
+    + reflexivity.
+Qed.
 
 
+Fixpoint split {X Y : Type} (l : list (X*Y))
+               : (list X) * (list Y) :=
+  match l with
+  | [] => ([], [])
+  | (x, y) :: t =>
+      match split t with
+      | (lx, ly) => (x :: lx, y :: ly)
+      end
+  end.
+
+Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
+  split l = (l1, l2) ->
+  combine l1 l2 = l.
+Proof.
+  intros X Y l.
+  induction l.
+  - intros. simpl in H. injection H as eq1 eq2.
+    rewrite <- eq1. rewrite <- eq2. reflexivity.
+  - destruct x. simpl. destruct (split l). intros.
+    injection H as H1 H2. rewrite <- H1. rewrite <- H2.
+    simpl. assert (H3: combine x0 y0 = l). 
+           { apply IHl. reflexivity. }
+    rewrite H3. reflexivity.
+Qed.
+
+Definition sillyfun1 (n : nat) : bool :=
+  if n=? 3 then true
+  else if n =? 5 then true
+  else false.
+
+Theorem sillyfun1_odd : forall n : nat,
+  sillyfun1 n = true ->
+  oddb n = true.
+Proof.
+  intros n eq. unfold sillyfun1 in eq.
+  destruct (n =? 3) eqn:Heq3. apply eqb_true in Heq3.
+  - rewrite Heq3. reflexivity.
+  - destruct (n =? 5) eqn:Heq4.
+    + apply eqb_true in Heq4. 
+      rewrite Heq4. reflexivity.
+    + discriminate.
+Qed.
+
+Theorem bool_fn_applied_thrice :
+  forall (b : bool) (f : bool -> bool),
+  f (f (f b)) = f b.
+Proof.
+  intros b f. destruct b.
+  - destruct (f true) eqn:Heq1.
+    + rewrite Heq1. apply Heq1.
+    + destruct (f false) eqn:Heq2.
+      * apply Heq1.
+      * apply Heq2.
+  - destruct (f false) eqn:Heq1.
+    + destruct (f true) eqn:Heq2.
+      * apply Heq2.
+      * apply Heq1.
+    + rewrite Heq1. apply Heq1.
+Qed.
+
+Theorem eqb_sym : forall n m : nat,
+  (n =? m) = (m =? n).
+Proof.
+  induction n.
+  - destruct m.
+    + reflexivity.
+    + reflexivity.
+  - destruct m.
+    + reflexivity.
+    + simpl. apply IHn.
+Qed.
+
+Lemma obvious : forall n,
+  (n =? n) = true.
+Proof.
+  intros. induction n.
+  - reflexivity.
+  - simpl. apply IHn.
+Qed.
+
+Theorem eqb_trans : forall n m p,
+  n =? m = true ->
+  m =? p = true ->
+  n =? p = true.
+Proof.
+  intros n m p eq1 eq2.
+  apply eqb_true in eq1.
+  apply eqb_true in eq2.
+  rewrite eq1. rewrite eq2.
+  apply obvious.
+Qed.
