@@ -328,7 +328,6 @@ Proof.
     + reflexivity.
 Qed.
 
-
 Fixpoint split {X Y : Type} (l : list (X*Y))
                : (list X) * (list Y) :=
   match l with
@@ -419,4 +418,60 @@ Proof.
   apply eqb_true in eq2.
   rewrite eq1. rewrite eq2.
   apply obvious.
+Qed.
+
+Definition split_combine_statement : Prop :=
+  forall (X Y : Type) (l1 : list X) (l2 : list Y),
+  length l1 = length l2 -> split (combine l1 l2) = (l1, l2).
+
+Theorem split_combine : split_combine_statement.
+Proof.
+  intros X Y l1. induction l1.
+  - intros. simpl. destruct l2.
+    + reflexivity.
+    + discriminate.
+  - intros. destruct l2.
+    * simpl. inversion H.
+    * simpl. rewrite IHl1.
+      + reflexivity.
+      + injection H as H1.
+        apply H1.
+Qed.
+
+Theorem filter_exercise : forall (X : Type) (test : X -> bool) 
+                                 (x : X) (l lf : list X),
+  filter test l = x :: lf ->
+  test x = true.
+Proof.
+  intros. induction l.
+  - discriminate.
+  - simpl in H. destruct test eqn:Heq1.
+    + injection H as H1 H2. rewrite <- H1. apply Heq1.
+    + apply IHl in H. apply H.
+Qed.
+
+Fixpoint forallb {X} (test: X -> bool) (l: list X): bool :=
+  match l with
+  | [] => true
+  | h :: t => test h && forallb test t
+  end.
+
+Fixpoint existsb {X} (test: X -> bool) (l: list X): bool :=
+  match l with
+  | [] => false
+  | h :: t => test h || existsb test t
+  end.
+
+Definition existsb' {X} (test: X -> bool) (l: list X): bool :=
+  negb (forallb (fun h => negb (test h)) l).
+
+Theorem existsb_existsb' : forall (X: Type) (f: X -> bool) (l: list X),
+  existsb f l = existsb' f l.
+Proof.
+  intros. unfold existsb'. 
+  induction l.
+  - reflexivity.
+  - simpl. destruct f.
+    + reflexivity.
+    + simpl. rewrite IHl. reflexivity.
 Qed.
