@@ -184,3 +184,55 @@ Proof.
     reflexivity.
   - reflexivity.
 Qed.
+
+Module MyIff.
+
+Definition iff (P Q: Prop) :=
+  (P -> Q) /\ (Q -> P).
+
+Notation "P <-> Q" := (iff P Q)
+                      (at level 95, no associativity)
+                      : type_scope.
+
+End MyIff.
+
+Theorem iff_sym: forall P Q: Prop,
+  (P <-> Q) -> (Q <-> P).
+Proof.
+  intros P Q [PIQ QIP].
+  split.
+  - apply QIP.
+  - apply PIQ.
+Qed.
+
+Lemma not_true_iff_false: forall b: bool,
+  b <> true <-> b = false.
+Proof.
+  intros. split.
+  - apply not_true_is_false.
+  - intros. rewrite H. unfold not. 
+    intros. discriminate H0.
+Qed.
+
+Theorem or_distributes_over_and: forall P Q R: Prop,
+  P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
+Proof.
+  intros. split.
+  - intros [HP | [HQ HR]].
+    + split.
+      * left. apply HP.
+      * left. apply HP.
+    + split.
+      * right. apply HQ.
+      * right. apply HR.
+  - intros [[HP | HQ] [HP' | HR]].
+    + left. apply HP.
+    + left. apply HP.
+    + left. apply HP'.
+    + right. split.
+      * apply HQ.
+      * apply HR.
+Qed.
+
+
+
