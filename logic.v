@@ -70,7 +70,6 @@ Qed.
 
 Theorem and_assoc: forall P Q R: Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
-
 Proof.
   intros P Q R [HP [HQ HR]].
   split.
@@ -233,6 +232,76 @@ Proof.
       * apply HQ.
       * apply HR.
 Qed.
+
+Lemma mult_eq_0: forall n m,
+  n * m = 0 -> n = 0 \/ m = 0.
+Proof.
+  intros n m. destruct n.
+  - intros _. left. reflexivity.
+  - destruct m.
+    + right. reflexivity.
+    + intros H. discriminate.
+Qed.
+
+Lemma mult_0: forall n m,
+  n * m = 0 <-> n = 0 \/ m = 0.
+Proof.
+  split.
+  - apply mult_eq_0.
+  - apply eq_mult_0.
+Qed.
+
+Theorem or_assoc: forall P Q R: Prop,
+  P \/ (Q \/ R) <-> (P \/ Q) \/ R.
+Proof.
+  intros P Q R. split.
+  - intros [HP | [HQ | HR]].
+    + left. left. apply HP.
+    + left. right. apply HQ.
+    + right. apply HR.
+  - intros [[HP | HQ] | HR].
+    + left. apply HP.
+    + right. left. apply HQ.
+    + right. right. apply HR.
+Qed.
+
+Definition even x := exists n: nat,
+  x = double n.
+
+Lemma four_is_even: even 4.
+Proof.
+  unfold even. exists 2. reflexivity.
+Qed.
+
+Theorem exists_example_2: forall n: nat,
+  (exists m, n = 4 + m) ->
+  (exists o, n = 2 + o).
+Proof.
+  intros n [m Hm]. 
+  exists (2 + m).
+  apply Hm.
+Qed.
+
+Theorem dist_not_exists: forall (X: Type) (P: X -> Prop),
+  (forall x, P x) -> ~(exists x, ~P x).
+Proof.
+  intros. unfold not. intros [x NP].
+  destruct NP. apply H.
+Qed.
+
+Theorem dist_exists_or: forall (X: Type) (P Q: X -> Prop),
+  (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
+Proof.
+  intros X P Q. unfold iff. split.
+  - intros [x [HP | HQ]].
+    + left. exists x. apply HP.
+    + right. exists x. apply HQ.
+  - intros [[x HP] | [x HQ]].
+    + exists x. left. apply HP.
+    + exists x. right. apply HQ.
+Qed.
+
+
 
 
 
