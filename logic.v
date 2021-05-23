@@ -301,6 +301,80 @@ Proof.
     + exists x. right. apply HQ.
 Qed.
 
+Fixpoint In {X} (x: X) (l: list X): Prop :=
+  match l with
+  | [] => False
+  | x' :: l' => x' = x \/ In x l'
+  end.
+
+Example In_example_1: In 4 [1;2;3;4;5].
+Proof.
+  simpl.
+  right. right. right. left. reflexivity.
+Qed.
+
+Example In_example_2: forall n,
+  In n [2;4] ->
+  exists n', n = 2 * n'.
+Proof.
+  simpl. intros n [HN2 | [HN4 | []]].
+  - exists 1. rewrite <- HN2. reflexivity.
+  - exists 2. rewrite <- HN4. reflexivity.
+Qed.
+
+Theorem In_map: 
+  forall (A B: Type) (f: A -> B) (l: list A) (x: A),
+    In x l ->
+    In (f x) (map f l).
+Proof.
+  intros A B f l x. induction l.
+  - simpl. intros H. apply H.
+  - simpl. intros [H1 | H2].
+    + rewrite H1. left. reflexivity.
+    + right. apply IHl. apply H2.
+Qed.
+
+Theorem In_map_iff:
+  forall (A B: Type) (f: A -> B) (l: list A) (y: B),
+  In y (map f l) <->
+  exists x, f x = y /\ In x l.
+Proof.
+  intros. unfold iff. split.
+  induction l as [| a xs].
+  - intros [].
+  - simpl. intros [L | R].
+    + exists a. split.
+      * apply L.
+      * left. reflexivity.
+    + apply IHxs in R as [x [L R]].
+      exists x. split.
+      * apply L.
+      * right. apply R.
+  - intros [x [L R]]. rewrite <- L.
+    apply In_map. apply R.
+Qed.
+
+Theorem In_app_iff: forall A l l' (a: A),
+  In a (l++l') <-> In a l \/ In a l'.
+Proof.
+  intros. split.
+  - induction l.
+    + intros. right. apply H.
+    + simpl. intros [L | R].
+      * left. left. apply L.
+      * apply IHl in R as [F | I].
+        { left. right. apply F. }
+        { right. apply I. }
+  - induction l. simpl.
+    + intros [[] | R]. apply R.
+    + simpl. intros [[F | I] | R].
+      * left. apply F.
+      * right. apply IHl. left. apply I.
+      * right. apply IHl. right. apply R.
+Qed.
+
+
+
 
 
 
