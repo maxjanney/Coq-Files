@@ -373,6 +373,69 @@ Proof.
       * right. apply IHl. right. apply R.
 Qed.
 
+Fixpoint All {T} (P: T -> Prop) (l: list T): Prop :=
+  match l with
+  | [] => True
+  | h :: t => P h /\ All P t
+  end.
+
+Theorem All_In: 
+  forall T (P: T -> Prop) (l: list T),
+  (forall x, In x l -> P x) <->
+  All P l.
+Proof.
+  intros T P l. unfold iff. split.
+  + induction l.
+    - reflexivity.
+    - intros. simpl. split.
+      * apply H. simpl. left. reflexivity.
+      * apply IHl. intros. apply H. 
+        simpl. right. apply H0.
+  + induction l.
+    - intros _ _ [].
+    - intros. simpl in H. simpl in H0.
+      * destruct H as [L R]. destruct H0 as [H1 | H2].
+        rewrite <- H1. apply L.
+        apply IHl. apply R. apply H2.
+Qed.
+
+Definition combine_odd_even (Podd Peven: nat -> Prop): nat -> Prop :=
+  fun n => if oddb n then Podd n else Peven n.
+
+Theorem combine_odd_even_intro:
+  forall (Podd Peven: nat -> Prop) (n: nat),
+    (oddb n = true -> Podd n) ->
+    (oddb n = false -> Peven n) ->
+    combine_odd_even Podd Peven n.
+Proof.
+  intros O E n H1 H2. induction n.
+  - unfold combine_odd_even. 
+    simpl. apply H2. reflexivity.
+  - unfold combine_odd_even. destruct (oddb (S n)).
+    + apply H1. reflexivity.
+    + apply H2. reflexivity.
+Qed.
+
+Theorem combine_odd_even_elim_odd:
+  forall (Podd Peven: nat -> Prop) (n: nat),
+    combine_odd_even Podd Peven n ->
+    oddb n = true ->
+    Podd n.
+Proof.
+  intros. unfold combine_odd_even in H.
+  rewrite H0 in H. apply H.
+Qed.
+
+Theorem combine_odd_even_elim_even :
+  forall (Podd Peven: nat -> Prop) (n: nat),
+    combine_odd_even Podd Peven n ->
+    oddb n = false ->
+    Peven n.
+Proof.
+  intros . unfold combine_odd_even in H.
+  rewrite H0 in H. apply H.
+Qed.
+
 
 
 
